@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <row>
+        <FIELD1>She speaks good English.</FIELD1>
+        <FIELD2>그녀는 영어를 잘 한다.</FIELD2>
+        <FIELD3>她擅长英语。</FIELD3>
+        <FIELD4>彼女は英語をよくする。</FIELD4>
+    </row>
+    <row>
+        <FIELD1>We found some food.</FIELD1>
+        <FIELD2>우리는 약간의 음식을 찾아냈습니다.</FIELD2>
+        <FIELD3>我们发现一些食物。</FIELD3>
+        <FIELD4>我々はいくつかの食品を発見しました。</FIELD4>
+    </row>
+    <row>
+        <FIELD1>I&apos;m waiting for the phone call.</FIELD1>
+        <FIELD2>나는 전화를 기다리고 있습니다.</FIELD2>
+        <FIELD3>我在等电话。</FIELD3>
+        <FIELD4>私は電話を待っています。</FIELD4>
+    </row>
+    <row>
+        <FIELD1>The sun went behind a cloud.</FIELD1>
+        <FIELD2>해가 구름 뒤로 들어갔다.</FIELD2>
+        <FIELD3></FIELD3>
+        <FIELD4></FIELD4>
+    </row>
+    <row>
+        <FIELD1>I spent most time on the first question.</FIELD1>
+        <FIELD2>나는 첫 문제에 시간을 가장 많이 들였다.</FIELD2>
+        <FIELD3></FIELD3>
+        <FIELD4></FIELD4>
+    </row>
+    <row>
+        <FIELD1>He was famous for playing classical music. </FIELD1>
+        <FIELD2>그는 클래식 음악 연주자로 유명했다.</FIELD2>
+        <FIELD3></FIELD3>
+        <FIELD4></FIELD4>
+    </row>
+</root>
