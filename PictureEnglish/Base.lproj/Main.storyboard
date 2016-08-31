@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15D21" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="o7o-PO-CXH">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="o7o-PO-CXH">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
@@ -15,20 +15,20 @@
                         <viewControllerLayoutGuide type="bottom" id="0Qw-fm-OtJ"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="kYA-wF-SAC">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <rect key="frame" x="0.0" y="0.0" width="1024" height="1366"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="e1_002.png" translatesAutoresizingMaskIntoConstraints="NO" id="e7k-31-A2b">
-                                <rect key="frame" x="26" y="60" width="323" height="357"/>
+                                <rect key="frame" x="30" y="60" width="964" height="1056"/>
                             </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="0" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="o7o-tP-clY">
-                                <rect key="frame" x="26" y="460" width="323" height="27"/>
+                                <rect key="frame" x="30" y="1159" width="964" height="27"/>
                                 <fontDescription key="fontDescription" name="TimesNewRomanPSMT" family="Times New Roman" pointSize="24"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MdH-pL-jvg" userLabel="Mic Button">
-                                <rect key="frame" x="163" y="597" width="50" height="50"/>
+                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MdH-pL-jvg" userLabel="Mic Button">
+                                <rect key="frame" x="488" y="1296" width="50" height="50"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="50" id="6EE-Q2-bgL"/>
                                     <constraint firstAttribute="height" constant="50" id="vfK-v8-0hT"/>
@@ -39,7 +39,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8nq-ki-rwG" userLabel="Trans Button">
-                                <rect key="frame" x="299" y="597" width="50" height="50"/>
+                                <rect key="frame" x="944" y="1296" width="50" height="50"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="50" id="N3l-eK-n1J"/>
                                     <constraint firstAttribute="height" constant="50" id="prR-ck-WAQ"/>
@@ -50,7 +50,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="wordWrap" translatesAutoresizingMaskIntoConstraints="NO" id="qo4-jg-eN7" userLabel="Speak Button">
-                                <rect key="frame" x="26" y="597" width="50" height="50"/>
+                                <rect key="frame" x="30" y="1296" width="50" height="50"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="50" id="5wI-D2-D6M"/>
                                     <constraint firstAttribute="width" constant="50" id="KZI-i7-qLU"/>
@@ -63,32 +63,38 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="huU-pZ-GoW">
-                                <rect key="frame" x="309" y="309" width="50" height="50"/>
+                                <rect key="frame" x="974" y="668" width="30" height="30"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="50" id="df8-VK-mlX"/>
-                                    <constraint firstAttribute="width" constant="50" id="njo-Cn-sMg"/>
+                                    <constraint firstAttribute="height" constant="30" id="df8-VK-mlX"/>
+                                    <constraint firstAttribute="width" constant="30" id="njo-Cn-sMg"/>
                                 </constraints>
                                 <size key="titleShadowOffset" width="2.2250738585072014e-308" height="2.2250738585072014e-308"/>
                                 <state key="normal" title="Button" image="arrow_right">
                                     <color key="titleShadowColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
+                                <connections>
+                                    <action selector="rightButtonPressed:" destination="o7o-PO-CXH" eventType="touchUpInside" id="32f-hm-DFj"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="T71-fs-rJj">
-                                <rect key="frame" x="16" y="309" width="50" height="50"/>
+                                <rect key="frame" x="20" y="668" width="30" height="30"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="50" id="Wu5-BX-R25"/>
-                                    <constraint firstAttribute="width" constant="50" id="mfj-4i-0Fj"/>
+                                    <constraint firstAttribute="height" constant="30" id="Wu5-BX-R25"/>
+                                    <constraint firstAttribute="width" constant="30" id="mfj-4i-0Fj"/>
                                 </constraints>
                                 <state key="normal" title="Button" image="arrow_left"/>
+                                <connections>
+                                    <action selector="leftButtonPressed:" destination="o7o-PO-CXH" eventType="touchUpInside" id="Fmn-Lu-cNz"/>
+                                </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cxy-wl-242">
-                                <rect key="frame" x="307" y="20" width="42" height="21"/>
+                                <rect key="frame" x="952" y="20" width="42" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yUT-jK-QA3">
-                                <rect key="frame" x="173" y="554" width="30" height="30"/>
+                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yUT-jK-QA3">
+                                <rect key="frame" x="498" y="1253" width="30" height="30"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="30" id="2cw-rn-wP8"/>
                                     <constraint firstAttribute="width" constant="30" id="kJa-pB-MQb"/>
@@ -127,7 +133,7 @@
                             <constraint firstItem="MdH-pL-jvg" firstAttribute="centerX" secondItem="kYA-wF-SAC" secondAttribute="centerX" id="xOk-Xs-Tic"/>
                         </constraints>
                     </view>
-                    <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina47"/>
+                    <simulatedScreenMetrics key="simulatedDestinationMetrics" type="iPadPro"/>
                     <connections>
                         <outlet property="imageView" destination="e7k-31-A2b" id="5Dq-Kv-9Uw"/>
                         <outlet property="label" destination="o7o-tP-clY" id="9zC-8S-QeZ"/>
@@ -149,9 +155,9 @@
         <image name="arrow_left" width="171" height="171"/>
         <image name="arrow_right" width="171" height="171"/>
         <image name="e1_002.png" width="1200" height="1200"/>
-        <image name="mic_off" width="171" height="171"/>
-        <image name="play_off" width="171" height="171"/>
-        <image name="speaker_off" width="171" height="171"/>
-        <image name="translation_off" width="171" height="171"/>
+        <image name="mic_off" width="66" height="66"/>
+        <image name="play_off" width="33" height="33"/>
+        <image name="speaker_off" width="66" height="66"/>
+        <image name="translation_off" width="66" height="66"/>
     </resources>
 </document>

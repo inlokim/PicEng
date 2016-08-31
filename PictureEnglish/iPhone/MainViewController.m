@@ -38,7 +38,6 @@
     
     AVAudioRecorder *recorder;
     AVAudioPlayer *player;
-
 }
 
 @property (weak, nonatomic) IBOutlet UIButton *recordPauseButton;
@@ -145,10 +144,7 @@
     //RECORDING
     
     // Disable Stop/Play button when application launches
-  
-    [self.playButton setEnabled:NO];
-    [self.playButton setAlpha:0.0];
-    
+    [self.playButton setHidden:YES];
     
     // Set the audio file
     NSArray *pathComponents = [NSArray arrayWithObjects:
@@ -213,8 +209,7 @@
 
 - (IBAction)recordPauseTapped:(id)sender {
     // Stop the audio player before recording
-    [self.playButton setEnabled:NO];
-    [self.playButton setAlpha:0.0];
+    [self.playButton setHidden:YES];
     
     if (player.playing) {
         [player stop];
@@ -227,7 +222,7 @@
         // Start recording
         [recorder record];
         [self.recordPauseButton setImage:[UIImage imageNamed:@"mic_on"] forState:UIControlStateNormal];
-        [self.playButton setEnabled:NO];
+        [self.playButton setHidden:YES];
     }
     else {
         // Pause recording
@@ -235,20 +230,18 @@
         AVAudioSession *audioSession = [AVAudioSession sharedInstance];
         [audioSession setActive:NO error:nil];
         [self.recordPauseButton setImage:[UIImage imageNamed:@"mic_off"] forState:UIControlStateNormal];
-        [self.playButton setEnabled:YES];
+        [self.playButton setHidden:NO];
     }
     
-   // [self.stopButton setEnabled:YES];
+    // [self.stopButton setEnabled:YES];
     
 }
 
 - (void) audioRecorderDidFinishRecording:(AVAudioRecorder *)avrecorder successfully:(BOOL)flag{
     [self.recordPauseButton setTitle:@"Record" forState:UIControlStateNormal];
-   // [self.stopButton setEnabled:NO];
-    [self.playButton setEnabled:YES];
-    [self.playButton setAlpha:1.0];
+    // [self.stopButton setEnabled:NO];
+    [self.playButton setHidden:NO];
     [self.playButton setImage:[UIImage imageNamed:@"play_off"] forState:UIControlStateNormal];
-
 }
 
 
@@ -265,14 +258,14 @@
 }
 
 - (void) audioPlayerDidFinishPlaying:(AVAudioPlayer *)player successfully:(BOOL)flag{
-   /* UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"Done"
-                                                    message: @"Finish playing the recording!"
-                                                   delegate: nil
-                                          cancelButtonTitle:@"OK"
-                                          otherButtonTitles:nil];
-    [alert show];*/
+    /* UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"Done"
+     message: @"Finish playing the recording!"
+     delegate: nil
+     cancelButtonTitle:@"OK"
+     otherButtonTitles:nil];
+     [alert show];*/
     
-   // [self.playButton setAlpha:0.0];
+    // [self.playButton setAlpha:0.0];
     
     [self.playButton setImage:[UIImage imageNamed:@"play_off"] forState:UIControlStateNormal];
 }
@@ -410,22 +403,22 @@
 
 - (void)handleSwipe:(UISwipeGestureRecognizer *)swipe {
     
-    [self initButtons];
     
-    [self.playButton setEnabled:NO];
-    [self.playButton setAlpha:0.0];
     
-    [self.leftArrow setHidden:NO];
-    [self.rightArrow setHidden:NO];
+   // [self.playButton setEnabled:NO];
+   // [self.playButton setAlpha:0.0];
     
-    self.leftArrow.alpha = 1.0;
-    self.rightArrow.alpha = 1.0;
+   // [self.leftArrow setHidden:NO];
+   // [self.rightArrow setHidden:NO];
+    
+   // self.leftArrow.alpha = 1.0;
+   // self.rightArrow.alpha = 1.0;
     //direction <--
     
     if (swipe.direction == UISwipeGestureRecognizerDirectionLeft) {
         NSLog(@"Left Swipe");
         
-        if (currentPage == totalPage) {
+      /*  if (currentPage == totalPage) {
          //  [self showHideArrow:self.rightArrow];
             [self.rightArrow setHidden:YES];
         }
@@ -439,12 +432,10 @@
  //            [self showHideArrow:self.leftArrow];
  //            [self showHideArrow:self.rightArrow];
             }
-            
-            currentPage = currentPage + 1;
-            [self makePageNumber];
-            [self makeImageView];
-            [self makeLabel:@"English"];
-        }
+            */
+            if (totalPage > currentPage) currentPage = currentPage + 1;
+            [self paging:@"English"];
+       // }
     }
     
     // direction -->
@@ -453,7 +444,7 @@
         NSLog(@"Right Swipe");
         
         
-        if (currentPage == 1) {
+    /*    if (currentPage == 1) {
             
             [self.leftArrow setHidden:YES];
         }
@@ -465,13 +456,11 @@
             else {
 //                [self showHideArrow:self.leftArrow];
 //                [self showHideArrow:self.rightArrow];
-            }
-                currentPage = currentPage - 1;
-                [self makePageNumber];
-                [self makeImageView];
-                [self makeLabel:@"English"];
+            }*/
+                if (currentPage > 1) currentPage = currentPage - 1;
+                [self paging:@"English"];
             
-        }
+       // }
     }
 }
 
@@ -479,12 +468,36 @@
 #pragma mark - Arrow Pressed
 
 - (IBAction)rightButtonPressed:(UIButton *)sender {
-    
+    currentPage = currentPage + 1;
+    [self paging:@"English"];
 }
 
 - (IBAction)leftButtonPressed:(UIButton *)sender {
+    currentPage = currentPage - 1;
+    [self paging:@"English"];
 }
 
+-(void)paging:(NSString *)language {
+    
+    [self initButtons];
+    
+    if (currentPage == 1) {
+        [self.leftArrow setHidden:YES];
+    }
+    else if (currentPage == totalPage) {
+        [self.rightArrow setHidden:YES];
+    }
+    else {
+        [self.rightArrow setHidden:NO];
+        [self.leftArrow setHidden:NO];
+    }
+    
+    [self.playButton setHidden:YES];
+    
+    [self makePageNumber];
+    [self makeImageView];
+    [self makeLabel:language];
+}
 
 
 #pragma mark - Translate
