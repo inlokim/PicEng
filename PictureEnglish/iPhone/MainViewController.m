@@ -7,18 +7,22 @@
 //
 
 #import "MainViewController.h"
-
+#import "FileDownloadInfo.h"
+#import "Utils.h"
+#import "AppDelegate.h"
+#import "SSZipArchive.h"
+#import "StoreManager.h"
+#import "StoreObserver.h"
+#import "MyModel.h"
 
 #define PLAY YES
 #define STOP NO
-#define DEFAULT_SPEED 0.3
+#define DEFAULT_SPEED 0.4
 
 #define ENGLISH 1
 #define KOREAN 2
 #define CHINESE 3
 #define JAPANESE 4
-
-
 
 
 @interface MainViewController ()
@@ -38,19 +42,42 @@
     
     AVAudioRecorder *recorder;
     AVAudioPlayer *player;
+    
+    SKProductsRequest *productsRequest;
+    SKProduct *validProduct;
+    SKPayment *payment;
+    NSString *appStoreProductId;
+    
+    
+    
+    NSString *lessonFile;
+    
+    BOOL xmlExists;
 }
 
-@property (weak, nonatomic) IBOutlet UIButton *recordPauseButton;
-@property (weak, nonatomic) IBOutlet UIButton *stopButton;
-@property (weak, nonatomic) IBOutlet UIButton *playButton;
+//@property (strong, nonatomic) IBOutlet UIActivityIndicatorView *activityIndicator;
+@property (strong, nonatomic) IBOutlet UIButton *purchaseButton;
+@property (strong, nonatomic) IBOutlet UIButton *restoreButton;
+
+
+@property (strong, nonatomic) IBOutlet UIButton *recordPauseButton;
+//@property (strong, nonatomic) IBOutlet UIButton *stopButton;
+@property (strong, nonatomic) IBOutlet UIButton *playButton;
 
 @property (strong, nonatomic) IBOutlet UIImageView *imageView;
 @property (strong, nonatomic) IBOutlet UILabel *label;
+@property (strong, nonatomic) IBOutlet UILabel *progressLabel;
 @property (strong, nonatomic) IBOutlet UILabel *pageNumber;
 @property (strong, nonatomic) IBOutlet UIButton *speakButton;
 @property (strong, nonatomic) IBOutlet UIButton *transButton;
 @property (strong, nonatomic) IBOutlet UIButton *leftArrow;
 @property (strong, nonatomic) IBOutlet UIButton *rightArrow;
+
+@property (strong, nonatomic) IBOutlet UIStackView *progressStackView;
+@property (strong, nonatomic) IBOutlet UIStackView *purchaseStackView;
+
+
+@property (strong, nonatomic) IBOutlet UIProgressView *progressView;
 
 @property (readwrite, nonatomic, copy) NSString *utteranceString;
 @property (readwrite, nonatomic, copy) NSString *translatedString;
@@ -62,6 +89,19 @@
 @property (nonatomic, strong) NSMutableString *foundValue;
 @property (nonatomic, strong) NSString *currentElement;
 
+
+@property (nonatomic, strong) NSURLSession *session;
+@property (nonatomic, strong) NSMutableArray *arrFileDownloadData;
+@property (nonatomic, strong) NSURL *docDirectoryURL;
+
+@property (nonatomic, strong) NSMutableArray *products;
+
+
+
+-(void)initializeFileDownloadDataArray;
+-(int)getFileDownloadInfoIndexWithTaskIdentifier:(unsigned long)taskIdentifier;
+
+
 @end
 
 @implementation MainViewController
@@ -72,40 +112,67 @@
     // Dispose of any resources that can be recreated.
 }
 
+
+
+
 - (void)viewDidLoad {
     
     [super viewDidLoad];
     
+    //Locale
+    
+    NSLocale *locale = [NSLocale currentLocale];
+    NSString *countryCode = [locale objectForKey: NSLocaleCountryCode];
+    
+    NSLog(@"countryCode : %@",countryCode);
+    
+    if ([countryCode isEqualToString:@"KR"]) [self.transButton setHidden:NO];
+    else [self.transButton setHidden:YES];
+    
+    lessonFile = @"lesson1";
+    
+    //Download
+    
+    
+    self.progressLabel.text=@"";
+    self.progressView.progress = 0.0;
+    
+    [self initializeFileDownloadDataArray];
+    
+    NSArray *URLs = [[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask];
+    self.docDirectoryURL = [URLs objectAtIndex:0];
+    
+    NSLog(@"docDirectoryURL : %@",[self.docDirectoryURL path] );
+    
+    
+    NSURLSessionConfiguration *sessionConfiguration
+        = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:@"kr.co.highwill.PictureEnglish"];
+    sessionConfiguration.HTTPMaximumConnectionsPerHost = 5;
+    
+    
+    self.session = [NSURLSession sessionWithConfiguration:sessionConfiguration
+                                                 delegate:self
+                                            delegateQueue:nil];
+
+    
+    
+    //Speech
     
     synthesizer = [[AVSpeechSynthesizer alloc] init];
 
-    
+    [self.progressStackView setHidden:YES];
+
+
     transStatus = ENGLISH;
 
-    //XML
-    
-    NSString *path = [[NSBundle mainBundle] pathForResource:@"sample" ofType:@"xml"];
-    self.xmlParser = [[NSXMLParser alloc] initWithData:[NSData dataWithContentsOfFile:path]];
-    self.foundValue = [[NSMutableString alloc] init];
-    self.xmlParser.delegate = self;
-    [self.xmlParser parse];
-
-
-    currentPage = 1;
     
     
-    //Arrow
+    /**********  
+      XML
+    ***********/
     
-   // self.leftArrow.alpha = 0.0;
-   // self.rightArrow.alpha = 0.0;
-    
-    if (currentPage == 1) [self.leftArrow setHidden:YES];
-    if (currentPage == totalPage) [self.rightArrow setHidden:YES];
-    
-    
-    //pageNumber
-    totalPage = [self.arrNeighboursData count];
-    [self makePageNumber];
+    [self XMLSetup];
+    [self pageNumberSetup];
     
     
     //ImageView
@@ -171,7 +238,483 @@
     recorder.delegate = self;
     recorder.meteringEnabled = YES;
     [recorder prepareToRecord];
+    
+    
+    //Purchse Display
+    
+    if (xmlExists == true) [self.purchaseStackView setHidden:YES];
+    else
+    {
+        if (currentPage == totalPage)[self.purchaseStackView setHidden:NO];
+        else [self.purchaseStackView setHidden:YES];
+    }
+    
+    self.products = [[NSMutableArray alloc] initWithCapacity:0];
+
+    //[[SKPaymentQueue defaultQueue] addTransactionObserver: self];
+    
+    //appStoreProductId =  @"PicEng_lesson1";
+    
+    
+    //self.activityIndicator.hidden = NO;
+
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handleProductRequestNotification:)
+                                                 name:IAPProductRequestNotification
+                                               object:[StoreManager sharedInstance]];
+    
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handlePurchasesNotification:)
+                                                 name:IAPPurchaseNotification
+                                               object:[StoreObserver sharedInstance]];
+    
+    
+    // Fetch information about our products from the App Store
+    [self fetchProductInformation];
+    
 }
+
+#pragma mark - ViewDisplay
+
+- (void)XMLSetup
+{
+    xmlExists = false;
+    
+    NSString *xmlFile = [NSString stringWithFormat:@"%@/out/%@",[Utils homeDir], @"lesson1.xml" ];
+    NSString *path;
+    
+    if ([[NSFileManager defaultManager] fileExistsAtPath:xmlFile])
+    {
+        path = xmlFile;
+        xmlExists = true;
+    }
+    else {
+        //use Sample file
+        path = [[NSBundle mainBundle] pathForResource:@"sample" ofType:@"xml"];
+    }
+    
+    self.xmlParser = [[NSXMLParser alloc] initWithData:[NSData dataWithContentsOfFile:path]];
+    self.foundValue = [[NSMutableString alloc] init];
+    self.xmlParser.delegate = self;
+    [self.xmlParser parse];
+}
+
+
+- (void)pageNumberSetup
+{
+    //persistence data
+    currentPage = [self pPageNumber];
+    totalPage = [self.arrNeighboursData count] ;
+    
+    //Arrow
+    
+    // self.leftArrow.alpha = 0.0;
+    // self.rightArrow.alpha = 0.0;
+    
+    if (currentPage > totalPage) currentPage = totalPage;
+    
+    NSLog(@"current Page : %lu, totalPage : %lu", currentPage, (unsigned long)totalPage);
+    
+    if (currentPage == 1) {
+        [self.leftArrow setHidden:YES];
+    }
+    else if (currentPage == totalPage) {
+        [self.rightArrow setHidden:YES];
+        
+        if (xmlExists == true) [self.purchaseStackView setHidden:YES];
+        else  [self.purchaseStackView setHidden:NO];
+    }
+    else
+    {
+        [self.purchaseStackView setHidden:YES];
+    }
+    
+    //pageNumber
+    
+    [self makePageNumber];
+}
+
+#pragma mark - Display message
+
+-(void)alertWithTitle:(NSString *)title message:(NSString *)message
+{
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:title
+                                                                   message:message
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction *defaultAction = [UIAlertAction actionWithTitle:@"OK"
+                                                            style:UIAlertActionStyleDefault
+                                                          handler:^(UIAlertAction * action) {}];
+    
+    [alert addAction:defaultAction];
+    
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
+
+
+#pragma mark Fetch product information
+
+// Retrieve product information from the App Store
+-(void)fetchProductInformation
+{
+    // Query the App Store for product information if the user is is allowed to make purchases.
+    // Display an alert, otherwise.
+    if([SKPaymentQueue canMakePayments])
+    {
+        // Load the product identifiers fron ProductIds.plist
+        NSURL *plistURL = [[NSBundle mainBundle] URLForResource:@"ProductIds" withExtension:@"plist"];
+        NSArray *productIds = [NSArray arrayWithContentsOfURL:plistURL];
+        
+        
+        NSLog(@"product Id %@",[productIds objectAtIndex:0]);
+        
+        [[StoreManager sharedInstance] fetchProductInformationForIds:productIds];
+    }
+    else
+    {
+        // Warn the user that they are not allowed to make purchases.
+        [self alertWithTitle:@"Warning" message:@"Purchases are disabled on this device."];
+    }
+}
+
+
+#pragma mark Handle product request notification
+
+// Update the UI according to the product request notification result
+-(void)handleProductRequestNotification:(NSNotification *)notification
+{
+    
+    NSLog(@"handleProductRequestNotification");
+    
+    
+    StoreManager *productRequestNotification = (StoreManager*)notification.object;
+    IAPProductRequestStatus result = (IAPProductRequestStatus)productRequestNotification.status;
+    
+    if (result == IAPProductRequestResponse)
+    {
+        // Switch to the iOSProductsList view controller and display its view
+     //   [self cycleFromViewController:self.currentViewController toViewController:self.productsList];
+        
+        // Set the data source for the Products view
+       // [self.productsList reloadUIWithData:productRequestNotification.productRequestResponse];
+       
+        self.products = productRequestNotification.productRequestResponse;
+        
+         NSLog(@"self.products count = %lu", (unsigned long)[self.products count]);
+/*
+        
+        MyModel *model = (self.products)[0];
+        NSArray *productRequestResponse = model.elements;
+        
+        if ([self.products count] > 0)
+        {
+            SKProduct *aProduct = productRequestResponse[0];
+            
+            NSString *title = aProduct.localizedTitle;
+            
+            NSString *price = [NSString stringWithFormat:@"%@ %@",[aProduct.priceLocale objectForKey:NSLocaleCurrencySymbol],aProduct.price];
+            
+            self.purchaseButton.titleLabel.text = [NSString stringWithFormat:@"%@ %@", title, price];
+        }*/
+    }
+}
+
+
+#pragma mark Handle purchase request notification
+
+// Update the UI according to the purchase request notification result
+-(void)handlePurchasesNotification:(NSNotification *)notification
+{
+     NSLog(@"handlePurchasesNotification");
+
+    
+    StoreObserver *purchasesNotification = (StoreObserver *)notification.object;
+    IAPPurchaseNotificationStatus status = (IAPPurchaseNotificationStatus)purchasesNotification.status;
+    
+    switch (status)
+    {
+            
+        case IAPPurchaseSucceeded:
+        {
+            NSLog(@"IAPPurchaseSucceeded !!!");
+            [self startDownload];
+        }
+            break;
+        case IAPPurchaseFailed:
+        {
+            [self alertWithTitle:@"Purchase Status" message:purchasesNotification.message];
+        }
+            break;
+            // Switch to the iOSPurchasesList view controller when receiving a successful restore notification
+        case IAPRestoredSucceeded:
+        {
+            
+            NSLog(@"IAPRestoredSucceeded");
+            
+            [self startDownload];
+
+        }
+            break;
+        case IAPRestoredFailed:
+        {
+            NSLog(@"IAPRestoredFailed");
+            
+            [self alertWithTitle:@"Purchase Status" message:purchasesNotification.message];
+        }
+            break;
+            // Notify the user that downloading is about to start when receiving a download started notification
+        case IAPDownloadStarted:
+        {
+            NSLog(@"IAPDownloadStarted");
+          //  self.hasDownloadContent = YES;
+          //  [self.view addSubview:self.statusMessage];
+        }
+            break;
+            // Display a status message showing the download progress
+        case IAPDownloadInProgress:
+        {
+            NSLog(@"IAPDownloadInProgress");
+            
+          //  self.hasDownloadContent = YES;
+          //  NSString *title = [[StoreManager sharedInstance] titleMatchingProductIdentifier:purchasesNotification.purchasedID];
+          //  NSString *displayedTitle = (title.length > 0) ? title : purchasesNotification.purchasedID;
+           // self.statusMessage.text = [NSString stringWithFormat:@" Downloading %@   %.2f%%",displayedTitle, purchasesNotification.downloadProgress];
+        }
+            break;
+            // Downloading is done, remove the status message
+        case IAPDownloadSucceeded:
+        {
+            NSLog(@"IAPDownloadSucceeded");
+            
+            
+          //  self.hasDownloadContent = NO;
+          //  self.statusMessage.text = @"Download complete: 100%";
+            
+            // Remove the message after 2 seconds
+            //[self performSelector:@selector(hideStatusMessage) withObject:nil afterDelay:2];
+        }
+            break;
+        default:
+            break;
+    }
+}
+
+
+
+
+- (void)dealloc
+{
+
+    // Unregister for StoreManager's notifications
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:IAPProductRequestNotification
+                                                  object:[StoreManager sharedInstance]];
+    
+    // Unregister for StoreObserver's notifications
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:IAPPurchaseNotification
+                                                  object:[StoreObserver sharedInstance]];}
+
+
+
+#pragma mark - Download
+
+-(void)initializeFileDownloadDataArray {
+    self.arrFileDownloadData = [[NSMutableArray alloc] init];
+    
+    [self.arrFileDownloadData addObject:[[FileDownloadInfo alloc] initWithFileTitle:lessonFile andDownloadSource:@"http://inlokim.com/textAudioBooks/PicEnglish/lesson1.zip"]];
+}
+
+-(int)getFileDownloadInfoIndexWithTaskIdentifier:(unsigned long)taskIdentifier{
+    int index = 0;
+    for (int i=0; i<[self.arrFileDownloadData count]; i++) {
+        FileDownloadInfo *fdi = [self.arrFileDownloadData objectAtIndex:i];
+        if (fdi.taskIdentifier == taskIdentifier) {
+            index = i;
+            break;
+        }
+    }
+    
+    return index;
+}
+
+- (void) startDownload {
+    
+    [self.purchaseStackView setHidden:YES];
+    [self.progressStackView setHidden:NO];
+    
+    
+    // Access all FileDownloadInfo objects using a loop.
+    for (int i=0; i<[self.arrFileDownloadData count]; i++) {
+        FileDownloadInfo *fdi = [self.arrFileDownloadData objectAtIndex:i];
+        
+        // Check if a file is already being downloaded or not.
+        if (!fdi.isDownloading) {
+            // Check if should create a new download task using a URL, or using resume data.
+            if (fdi.taskIdentifier == -1) {
+                fdi.downloadTask = [self.session downloadTaskWithURL:[NSURL URLWithString:fdi.downloadSource]];
+            }
+            else{
+                fdi.downloadTask = [self.session downloadTaskWithResumeData:fdi.taskResumeData];
+            }
+            
+            // Keep the new taskIdentifier.
+            fdi.taskIdentifier = fdi.downloadTask.taskIdentifier;
+            
+            // Start the download.
+            [fdi.downloadTask resume];
+            
+            // Indicate for each file that is being downloaded.
+            fdi.isDownloading = YES;
+        }
+    }
+}
+
+#pragma mark - NSURLSession Delegate method implementation
+
+-(void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location{
+    
+    NSError *error;
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    
+    NSString *destinationFilename = downloadTask.originalRequest.URL.lastPathComponent;
+    NSURL *destinationURL = [self.docDirectoryURL URLByAppendingPathComponent:destinationFilename];
+    
+    if ([fileManager fileExistsAtPath:[destinationURL path]]) {
+        [fileManager removeItemAtURL:destinationURL error:nil];
+    }
+    
+    BOOL success = [fileManager copyItemAtURL:location
+                                        toURL:destinationURL
+                                        error:&error];
+    
+    if (success) {
+        // Change the flag values of the respective FileDownloadInfo object.
+        int index = [self getFileDownloadInfoIndexWithTaskIdentifier:downloadTask.taskIdentifier];
+        FileDownloadInfo *fdi = [self.arrFileDownloadData objectAtIndex:index];
+        
+        fdi.isDownloading = NO;
+        fdi.downloadComplete = YES;
+        
+        // Set the initial value to the taskIdentifier property of the fdi object,
+        // so when the start button gets tapped again to start over the file download.
+        fdi.taskIdentifier = -1;
+        
+        // In case there is any resume data stored in the fdi object, just make it nil.
+        fdi.taskResumeData = nil;
+        
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            // Reload the respective table view row using the main thread.
+            //  [self.tblFiles reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:index inSection:0]]
+            //                       withRowAnimation:UITableViewRowAnimationNone];
+            
+        }];
+        
+    }
+    else{
+        NSLog(@"Unable to copy temp file. Error: %@", [error localizedDescription]);
+    }
+}
+
+
+-(void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error{
+    if (error != nil) {
+        NSLog(@"Download completed with error: %@", [error localizedDescription]);
+    }
+    else{
+        [self unZipping];
+        [self deleteFile];
+        NSLog(@"Download finished successfully.");
+
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self viewDidLoad];
+                [self viewWillAppear:YES];
+                [self.rightArrow setHidden:NO];
+            });
+
+        //[self.view setNeedsDisplay];
+    }
+}
+
+
+- (void)unZipping {
+    
+    NSString *filePath = [NSString stringWithFormat:@"%@/%@.zip",[Utils homeDir],lessonFile];
+    NSString *zipPath = filePath;
+    
+    [SSZipArchive unzipFileAtPath:zipPath toDestination:[Utils homeDir]];
+}
+
+- (void)deleteFile {
+
+    NSLog(@"Delete Zip Files");
+
+    NSString *zipFile = [NSString stringWithFormat:@"%@/%@.zip",[Utils homeDir],lessonFile];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    [fileManager removeItemAtPath:zipFile error:NULL];
+}
+
+
+-(void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didWriteData:(int64_t)bytesWritten totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite{
+    
+    if (totalBytesExpectedToWrite == NSURLSessionTransferSizeUnknown) {
+        NSLog(@"Unknown transfer size");
+    }
+    else{
+        // Locate the FileDownloadInfo object among all based on the taskIdentifier property of the task.
+        int index = [self getFileDownloadInfoIndexWithTaskIdentifier:downloadTask.taskIdentifier];
+        FileDownloadInfo *fdi = [self.arrFileDownloadData objectAtIndex:index];
+        
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            // Calculate the progress.
+            fdi.downloadProgress = (double)totalBytesWritten / (double)totalBytesExpectedToWrite;
+            
+            // Get the progress view of the appropriate cell and update its progress.
+            //            UITableViewCell *cell = [self.tblFiles cellForRowAtIndexPath:[NSIndexPath indexPathForRow:index inSection:0]];
+            //            UIProgressView *progressView = (UIProgressView *)[cell viewWithTag:CellProgressBarTagValue];
+            self.progressView.progress = fdi.downloadProgress;
+            
+            double value = (double)totalBytesWritten / (double)totalBytesExpectedToWrite * 100;
+            self.progressLabel.text = [NSString stringWithFormat:@"%.1f %%", value];
+            
+        }];
+    }
+}
+
+
+-(void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session{
+    AppDelegate *appDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
+    
+    // Check if all download tasks have been finished.
+    [self.session getTasksWithCompletionHandler:^(NSArray *dataTasks, NSArray *uploadTasks, NSArray *downloadTasks) {
+        
+        if ([downloadTasks count] == 0) {
+            if (appDelegate.backgroundTransferCompletionHandler != nil) {
+                // Copy locally the completion handler.
+                void(^completionHandler)() = appDelegate.backgroundTransferCompletionHandler;
+                
+                // Make nil the backgroundTransferCompletionHandler.
+                appDelegate.backgroundTransferCompletionHandler = nil;
+                
+                [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                    // Call the completion handler to tell the system that there are no other background transfers.
+                    completionHandler();
+                    
+                    // Show a local notification when all downloads are over.
+                    UILocalNotification *localNotification = [[UILocalNotification alloc] init];
+                    localNotification.alertBody = @"All files have been downloaded!";
+                    [[UIApplication sharedApplication] presentLocalNotificationNow:localNotification];
+                }];
+            }
+        }
+    }];
+}
+
+#pragma mark - Init View
+
 //ImageView
 
 -(void)initButtons {
@@ -194,11 +737,58 @@
     else if (currentPage > 9 && currentPage < 100) imageName = [NSString stringWithFormat:@"%@_0%lu",prefix,(unsigned long)currentPage];
     else if (currentPage > 99) imageName = [NSString stringWithFormat:@"%@_%lu",prefix,(unsigned long)currentPage];
     
-    self.imageView.image = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",imageName]];
+    
+    if (xmlExists) {
+        NSString *fullPath = [NSString stringWithFormat:@"%@/out/%@", [Utils homeDir], imageName];
+       self.imageView.image = [UIImage imageWithContentsOfFile:fullPath];
+    }
+    else {
+        self.imageView.image = [UIImage imageNamed:[NSString stringWithFormat:@"%@.png",imageName]];
+    }
 }
 
 -(void)makePageNumber {
     self.pageNumber.text = [NSString stringWithFormat:@"%lu/%lu",(unsigned long)currentPage,(unsigned long)totalPage];
+}
+
+
+
+#pragma mark - Persitence Data
+
+
+-(NSString *)plistFile
+{
+    NSString *lessonName = @"lesson1";
+    
+    NSString *homeDir = [Utils homeDir];
+    NSString *fileName = [NSString stringWithFormat:@"%@.plist", lessonName];
+    
+    return [homeDir stringByAppendingPathComponent:fileName];
+}
+
+//Persitence Page Number
+
+-(NSUInteger)pPageNumber {
+    
+    NSString *plistFile = [self plistFile];
+    
+    NSLog(@"plistFile = %@", plistFile);
+    
+    if ([[NSFileManager defaultManager] fileExistsAtPath:plistFile]) {
+        NSArray *array = [[NSArray alloc] initWithContentsOfFile:plistFile];
+        return [[array objectAtIndex:0] intValue];
+    }
+    else {
+        return 1;
+    }
+}
+
+-(void) savePersistData
+{
+    NSString *plistFile = [self plistFile];
+    NSMutableArray *array = [[NSMutableArray alloc] init];
+    [array addObject:[NSString stringWithFormat:@"%lu",(unsigned long)currentPage ]];
+    [array writeToFile:plistFile atomically:YES];
 }
 
 
@@ -312,7 +902,7 @@
     }
     else if ([elementName isEqualToString:@"FIELD2"]){
         
-        NSLog(@"Korean : %@", [NSString stringWithString:self.foundValue]);
+       // NSLog(@"Korean : %@", [NSString stringWithString:self.foundValue]);
         
         // If the toponym name element was found then store it.
         [self.dictTempDataStorage setObject:[NSString stringWithString:self.foundValue] forKey:@"Korean"];
@@ -403,60 +993,20 @@
 
 - (void)handleSwipe:(UISwipeGestureRecognizer *)swipe {
     
-    
-    
-   // [self.playButton setEnabled:NO];
-   // [self.playButton setAlpha:0.0];
-    
-   // [self.leftArrow setHidden:NO];
-   // [self.rightArrow setHidden:NO];
-    
-   // self.leftArrow.alpha = 1.0;
-   // self.rightArrow.alpha = 1.0;
-    //direction <--
+     // direction <--
     
     if (swipe.direction == UISwipeGestureRecognizerDirectionLeft) {
         NSLog(@"Left Swipe");
-        
-      /*  if (currentPage == totalPage) {
-         //  [self showHideArrow:self.rightArrow];
-            [self.rightArrow setHidden:YES];
-        }
-        else {
-            
-            if (currentPage == totalPage - 1) {
-                [self.rightArrow setHidden:YES];
-            }
-            else {
-            
- //            [self showHideArrow:self.leftArrow];
- //            [self showHideArrow:self.rightArrow];
-            }
-            */
+
             if (totalPage > currentPage) currentPage = currentPage + 1;
             [self paging:@"English"];
-       // }
     }
     
     // direction -->
     
     if (swipe.direction == UISwipeGestureRecognizerDirectionRight) {
         NSLog(@"Right Swipe");
-        
-        
-    /*    if (currentPage == 1) {
-            
-            [self.leftArrow setHidden:YES];
-        }
-        else {
-            
-            if (currentPage == 2) {
-                [self.leftArrow setHidden:YES];
-            }
-            else {
-//                [self showHideArrow:self.leftArrow];
-//                [self showHideArrow:self.rightArrow];
-            }*/
+
                 if (currentPage > 1) currentPage = currentPage - 1;
                 [self paging:@"English"];
             
@@ -481,15 +1031,23 @@
     
     [self initButtons];
     
+    NSLog(@"XML Exist : %d", xmlExists);
+    
     if (currentPage == 1) {
         [self.leftArrow setHidden:YES];
     }
     else if (currentPage == totalPage) {
+        
+        if (xmlExists == true) [self.purchaseStackView setHidden:YES];
+        else  [self.purchaseStackView setHidden:NO];
+        
         [self.rightArrow setHidden:YES];
     }
     else {
         [self.rightArrow setHidden:NO];
         [self.leftArrow setHidden:NO];
+        
+        [self.purchaseStackView setHidden:YES];
     }
     
     [self.playButton setHidden:YES];
@@ -497,6 +1055,8 @@
     [self makePageNumber];
     [self makeImageView];
     [self makeLabel:language];
+    
+    [self savePersistData];
 }
 
 
@@ -574,5 +1134,37 @@ willSpeakRangeOfSpeechString:(NSRange)characterRange
 }
 
 
+
+#pragma mark - Purchase
+
+- (IBAction)purchaseButtonPressed:(id)sender {
+
+    MyModel *model = (self.products)[0];
+    
+    NSLog(@"model %@",model.name);
+    
+    // Only available products can be bought
+    if([model.name isEqualToString:@"AVAILABLE PRODUCTS"])
+    {
+        NSArray *productRequestResponse = model.elements;
+        SKProduct *product = (SKProduct *)productRequestResponse[0];
+        // Attempt to purchase the tapped product
+        [[StoreObserver sharedInstance] buy:product];
+    }
+}
+
+
+- (IBAction)restoreButtonPressed:(id)sender {
+    
+    MyModel *model = (self.products)[0];
+    NSLog(@"model %@",model.name);
+    
+    // Only available products can be bought
+    if([model.name isEqualToString:@"AVAILABLE PRODUCTS"])
+    {
+        [[StoreObserver sharedInstance] restore];
+    }
+    
+}
 
 @end

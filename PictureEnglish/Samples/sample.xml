@@ -2,7 +2,7 @@
 <root>
     <row>
         <FIELD1>She speaks good English.</FIELD1>
-        <FIELD2>그녀는 영어를 잘 한다.</FIELD2>
+        <FIELD2>그녀는 영어를 잘 합니다.</FIELD2>
         <FIELD3>她擅长英语。</FIELD3>
         <FIELD4>彼女は英語をよくする。</FIELD4>
     </row>
@@ -20,19 +20,49 @@
     </row>
     <row>
         <FIELD1>The sun went behind a cloud.</FIELD1>
-        <FIELD2>해가 구름 뒤로 들어갔다.</FIELD2>
+        <FIELD2>해가 구름 뒤로 들어갔습니다.</FIELD2>
         <FIELD3></FIELD3>
         <FIELD4></FIELD4>
     </row>
     <row>
         <FIELD1>I spent most time on the first question.</FIELD1>
-        <FIELD2>나는 첫 문제에 시간을 가장 많이 들였다.</FIELD2>
+        <FIELD2>나는 첫 문제에 시간을 가장 많이 들였습니다.</FIELD2>
         <FIELD3></FIELD3>
         <FIELD4></FIELD4>
     </row>
     <row>
         <FIELD1>He was famous for playing classical music. </FIELD1>
-        <FIELD2>그는 클래식 음악 연주자로 유명했다.</FIELD2>
+        <FIELD2>그는 클래식 음악 연주자로 유명했습니다.</FIELD2>
+        <FIELD3></FIELD3>
+        <FIELD4></FIELD4>
+    </row>
+    <row>
+        <FIELD1>I enjoy playing tennis and squash.</FIELD1>
+        <FIELD2>나는 테니스와 스쿼시 치는 걸 즐깁니다.</FIELD2>
+        <FIELD3></FIELD3>
+        <FIELD4></FIELD4>
+    </row>
+    <row>
+        <FIELD1>We grew up in the same neighbourhood.</FIELD1>
+        <FIELD2>우리는 같은 지역에서 자랐습니다.</FIELD2>
+        <FIELD3></FIELD3>
+        <FIELD4></FIELD4>
+    </row>
+    <row>
+        <FIELD1>He didn&apos;t want to become friends with the new boy.</FIELD1>
+        <FIELD2>그 아이는 새로온 아이랑 친해지고 싶지 않았습니다.</FIELD2>
+        <FIELD3></FIELD3>
+        <FIELD4></FIELD4>
+    </row>
+    <row>
+        <FIELD1>The more you have, the more you want. </FIELD1>
+        <FIELD2>가지면 가질수록 더 갖고 싶은 것입니다.</FIELD2>
+        <FIELD3></FIELD3>
+        <FIELD4></FIELD4>
+    </row>
+    <row>
+        <FIELD1></FIELD1>
+        <FIELD2></FIELD2>
         <FIELD3></FIELD3>
         <FIELD4></FIELD4>
     </row>

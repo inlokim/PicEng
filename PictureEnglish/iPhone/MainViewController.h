@@ -8,10 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
-
 @import AVFoundation;
 
-@interface MainViewController : UIViewController <AVSpeechSynthesizerDelegate, NSXMLParserDelegate, AVAudioRecorderDelegate, AVAudioPlayerDelegate>
-
+@interface MainViewController : UIViewController <AVSpeechSynthesizerDelegate, NSXMLParserDelegate, AVAudioRecorderDelegate, AVAudioPlayerDelegate, NSURLSessionDelegate>
 
 @end
