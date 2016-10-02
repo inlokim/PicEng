@@ -19,7 +19,6 @@
 		319AE3511D7D953C0016459F /* prng.c in Sources */ = {isa = PBXBuildFile; fileRef = 319AE3351D7D953C0016459F /* prng.c */; };
 		319AE3521D7D953C0016459F /* pwd2key.c in Sources */ = {isa = PBXBuildFile; fileRef = 319AE3371D7D953C0016459F /* pwd2key.c */; };
 		319AE3531D7D953C0016459F /* sha1.c in Sources */ = {isa = PBXBuildFile; fileRef = 319AE3391D7D953C0016459F /* sha1.c */; };
-		319AE3541D7D953C0016459F /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 319AE33B1D7D953C0016459F /* Info.plist */; };
 		319AE3551D7D953C0016459F /* ioapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 319AE33E1D7D953C0016459F /* ioapi.c */; };
 		319AE3561D7D953C0016459F /* mztools.c in Sources */ = {isa = PBXBuildFile; fileRef = 319AE3401D7D953C0016459F /* mztools.c */; };
 		319AE3571D7D953C0016459F /* unzip.c in Sources */ = {isa = PBXBuildFile; fileRef = 319AE3421D7D953C0016459F /* unzip.c */; };
@@ -35,7 +34,6 @@
 		7AA59A7E1D7020EF008DC881 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7AA59A661D7020EF008DC881 /* Main.storyboard */; };
 		7AA59A7F1D7020EF008DC881 /* HighVolume-50.png in Resources */ = {isa = PBXBuildFile; fileRef = 7AA59A691D7020EF008DC881 /* HighVolume-50.png */; };
 		7AA59A801D7020EF008DC881 /* HighVolumeFilled-50.png in Resources */ = {isa = PBXBuildFile; fileRef = 7AA59A6A1D7020EF008DC881 /* HighVolumeFilled-50.png */; };
-		7AA59A821D7020EF008DC881 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 7AA59A6C1D7020EF008DC881 /* Info.plist */; };
 		7AA59A831D7020EF008DC881 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AA59A6F1D7020EF008DC881 /* MainViewController.m */; };
 		7AA59A841D7020EF008DC881 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AA59A701D7020EF008DC881 /* main.m */; };
 		7AA59A851D7020EF008DC881 /* e1_001.png in Resources */ = {isa = PBXBuildFile; fileRef = 7AA59A721D7020EF008DC881 /* e1_001.png */; };
@@ -327,7 +325,7 @@
 		7A7B8C0A1D62EE0500ED362E /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0730;
+				LastUpgradeCheck = 0800;
 				ORGANIZATIONNAME = "김인로";
 				TargetAttributes = {
 					7A7B8C111D62EE0500ED362E = {
@@ -379,13 +377,11 @@
 				7AA59A861D7020EF008DC881 /* e1_002.png in Resources */,
 				7AA59A8A1D7020EF008DC881 /* e1_006.png in Resources */,
 				7AA59A881D7020EF008DC881 /* e1_004.png in Resources */,
-				319AE3541D7D953C0016459F /* Info.plist in Resources */,
 				7AA59A891D7020EF008DC881 /* e1_005.png in Resources */,
 				7AA59A7F1D7020EF008DC881 /* HighVolume-50.png in Resources */,
 				7A115E771D8294C500BF8350 /* ProductIds.plist in Resources */,
 				311219391D9D59A900FBAAB0 /* launch.png in Resources */,
 				7AF32FCC1D77E41B0079E081 /* e1_007.png in Resources */,
-				7AA59A821D7020EF008DC881 /* Info.plist in Resources */,
 				7AA59A871D7020EF008DC881 /* e1_003.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -459,8 +455,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -503,8 +501,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";

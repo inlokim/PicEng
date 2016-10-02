@@ -314,7 +314,7 @@
     
     if (currentPage > totalPage) currentPage = totalPage;
     
-    NSLog(@"current Page : %lu, totalPage : %lu", currentPage, (unsigned long)totalPage);
+    //NSLog(@"current Page : %d, totalPage : %d", currentPage, totalPage);
     
     if (currentPage == 1) {
         [self.leftArrow setHidden:YES];

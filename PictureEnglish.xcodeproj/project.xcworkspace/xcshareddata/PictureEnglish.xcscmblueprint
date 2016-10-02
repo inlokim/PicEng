@@ -1,0 +1,34 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "282AC8A755699EC658B45AD3A943E855F4C3398F",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+    "4d137311-0bac-4d58-8f69-c0493a69741b++1430" : {
+      "DVTSourceControlWorkingCopyRepositoryBranchesLocationKey" : "branches",
+      "DVTSourceControlWorkingCopyRepositoryTagsLocationKey" : "tags",
+      "DVTSourceControlWorkingCopyRepositoryPrimaryBranchLocationKey" : "trunk"
+    }
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "4d137311-0bac-4d58-8f69-c0493a69741b++1430" : 0,
+    "282AC8A755699EC658B45AD3A943E855F4C3398F" : 9223372036854775807
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "76745F8E-8F47-4038-BE64-987604AA7D3A",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "4d137311-0bac-4d58-8f69-c0493a69741b++1430" : "PictureEnglish-master\/PictureEnglish\/Commons\/minizip\/",
+    "282AC8A755699EC658B45AD3A943E855F4C3398F" : "PictureEnglish-master\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "PictureEnglish",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "PictureEnglish.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/inlokim\/PicEng.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "282AC8A755699EC658B45AD3A943E855F4C3398F"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/dev.naver.com\/svn\/appleproject",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Subversion",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "4d137311-0bac-4d58-8f69-c0493a69741b++1430"
+    }
+  ]
+}
